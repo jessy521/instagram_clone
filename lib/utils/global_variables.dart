@@ -3,10 +3,10 @@ import 'package:instagram_clone/screens/add_post_screen.dart';
 
 const webScreenSize = 600;
 
-const homeScreenItems = <Widget>[
-  Text('home'),
-  Text('search'),
-  AddPostScreen(),
-  Text('notify'),
-  Text('profile')
+List<Widget> homeScreenItems = [
+  const Text('home'),
+  const Text('search'),
+  const AddPostScreen(),
+  const Text('notify'),
+  const Text('profile')
 ];
