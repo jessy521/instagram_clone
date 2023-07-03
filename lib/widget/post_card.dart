@@ -210,8 +210,8 @@ class _PostCardState extends State<PostCard> {
                           style: TextStyle(color: primaryColor),
                           children: [
                         TextSpan(
-                          text: 'username',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          text: widget.snap['username'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
                           text: ' ${widget.snap['description']}',
