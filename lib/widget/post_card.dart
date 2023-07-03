@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/models/user_model.dart' as model;
 import 'package:instagram_clone/providers/user_provider.dart';
 import 'package:instagram_clone/resources/firestore_methods.dart';
 import 'package:instagram_clone/screens/comment_screen.dart';
 import 'package:instagram_clone/utils/colors.dart';
+import 'package:instagram_clone/utils/utils.dart';
 import 'package:instagram_clone/widget/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +20,29 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
+  int commentLen = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getCommentLen();
+  }
+
+  void getCommentLen() async {
+    try {
+      QuerySnapshot snap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .collection('comments')
+          .get();
+
+      commentLen = snap.docs.length;
+    } catch (e) {
+      showSnackbar(e.toString(), context);
+    }
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +86,13 @@ class _PostCardState extends State<PostCard> {
                                 shrinkWrap: true,
                                 children: ['Delete']
                                     .map((e) => InkWell(
-                                          onTap: () {},
+                                          onTap: () async {
+                                            FirestoreMethods()
+                                                .delPost(widget.snap['postId']);
+                                            Navigator.of(context).pop();
+                                          },
                                           child: Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 vertical: 12, horizontal: 16),
                                             child: Text(e),
                                           ),
@@ -71,7 +100,7 @@ class _PostCardState extends State<PostCard> {
                                     .toList(),
                               ),
                             )),
-                    icon: Icon(Icons.more_vert))
+                    icon: const Icon(Icons.more_vert))
               ],
             ),
           ),
@@ -137,8 +166,10 @@ class _PostCardState extends State<PostCard> {
                           )),
               ),
               IconButton(
-                  onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => CommentScreen())),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => CommentScreen(
+                            snap: widget.snap,
+                          ))),
                   icon: const Icon(
                     Icons.comment_outlined,
                   )),
@@ -179,8 +210,8 @@ class _PostCardState extends State<PostCard> {
                           style: TextStyle(color: primaryColor),
                           children: [
                         TextSpan(
-                          text: 'username',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          text: widget.snap['username'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
                           text: ' ${widget.snap['description']}',
@@ -192,7 +223,7 @@ class _PostCardState extends State<PostCard> {
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      'View all 200 comments',
+                      'View all $commentLen comments',
                       style: TextStyle(color: secondaryColor, fontSize: 16),
                     ),
                   ),
